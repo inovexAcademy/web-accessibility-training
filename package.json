@@ -1,0 +1,24 @@
+{
+  "name": "web-accessibility-training",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start:shop": "(sleep 1 && open http://localhost:3000/src/home.html) & serve ./ai-slop-shop/",
+    "start:playwright": "serve ai-slop-shop/src -l 3100",
+    "test:playwright": "playwright test -c playwright/playwright.config.js",
+    "test:playwright:ui": "playwright test -c playwright/playwright.config.js --ui",
+    "postinstall": "playwright install"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.5.0",
+    "serve": "^14.2.6"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.11.1"
+  }
+}

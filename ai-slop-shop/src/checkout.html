@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — Cosmic Goods</title>
+  <style>
+    /* 1.4.10 Reflow — anchor jumps won't be clipped under sticky chrome */
+    html { scroll-padding-top: 1rem; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f4f0;
+      color: #1a1a1a;
+    }
+
+    /* ── Visually hidden ── */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ── Skip link (2.4.1 Bypass Blocks) ── */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 1rem;
+      z-index: 100;
+      padding: 0.6rem 1.2rem;
+      background: #1a1a1a;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-radius: 0 0 8px 8px;
+      /* Move into view on focus (2.4.1) */
+    }
+    .skip-link:focus { top: 0; }
+
+    /* ── Header ── */
+    header {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 0.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+      text-decoration: none;
+      /* 2.5.8 Target Size — pad to ≥ 24 × 24 px */
+      padding: 0.5rem 0;
+      display: inline-block;
+    }
+
+    /* 2.4.7 Focus Visible — explicit outline for dark background */
+    header .logo:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    header nav a {
+      color: #ccc; /* 10.9:1 on #1a1a1a — passes 1.4.3 */
+      text-decoration: none;
+      margin-left: 0.5rem;
+      font-size: 0.9rem;
+      /* 2.5.8 Target Size — pad to ≥ 24 × 24 px */
+      padding: 0.5rem 0.6rem;
+      display: inline-block;
+      border-radius: 4px;
+    }
+
+    header nav a:hover { color: #fff; }
+
+    header nav a:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    /* ── Layout ── */
+    main {
+      max-width: 1000px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    main h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      grid-column: 1 / -1;
+    }
+
+    /* ── Required field note (3.3.2 Labels or Instructions) ── */
+    .required-note {
+      font-size: 0.82rem;
+      color: #595959; /* 7.3:1 on white — passes 1.4.3 */
+      margin-bottom: 1.5rem;
+      grid-column: 1 / -1;
+    }
+
+    .required-note .req-marker {
+      color: #c0392b;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    /* ── Error summary (3.3.1, 3.3.3) ── */
+    .error-summary {
+      background: #fff5f5;
+      /* 1.4.11 Non-text Contrast — #c0392b on #fff5f5 ≈ 3.8:1 passes 3:1 */
+      border: 2px solid #c0392b;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .error-summary:not([hidden]) { display: block; }
+
+    /* 2.4.7 Focus Visible — programmatic focus on submit (JS sets tabindex="-1") */
+    .error-summary:focus {
+      outline: 3px solid #c0392b;
+      outline-offset: 2px;
+    }
+
+    .error-summary h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #c0392b; /* 5.3:1 on #fff5f5 — passes 1.4.3 */
+      margin-bottom: 0.75rem;
+    }
+
+    .error-summary ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .error-summary li { font-size: 0.875rem; margin-bottom: 0.3rem; }
+
+    .error-summary a {
+      color: #9e2a20; /* 6.8:1 on #fff5f5 — passes 1.4.3 */
+      font-weight: 600;
+      text-underline-offset: 2px;
+    }
+
+    .error-summary a:focus-visible {
+      outline: 2px solid #9e2a20;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* ── Form sections ── */
+    .form-section {
+      background: #fff;
+      border-radius: 12px;
+      /* 1.4.11 Non-text Contrast — visible border in all modes */
+      border: 1px solid #d4d4d4;
+      padding: 1.75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-section h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+
+    .field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .field-group.full { grid-template-columns: 1fr; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    /* 1.4.3 Contrast — #444 on white = 9.3:1 */
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #444;
+    }
+
+    /* Visual required marker — aria-hidden so AT relies on aria-required on input */
+    label .req-marker { color: #c0392b; font-weight: 700; }
+
+    /* ── Inputs and selects ── */
+    input:not([type="radio"]):not([type="checkbox"]),
+    select {
+      padding: 0.55rem 0.75rem;
+      /* 1.4.11 Non-text Contrast — #767676 on white = 4.5:1, exceeds 3:1 for UI components */
+      border: 1px solid #767676;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fff;
+      transition: border-color 0.15s;
+    }
+
+    /* 2.4.7 / 2.4.11 Focus — outline (not box-shadow alone) works in forced-colors */
+    input:not([type="radio"]):not([type="checkbox"]):focus-visible,
+    select:focus-visible {
+      outline: 3px solid #2d1b69;
+      outline-offset: 0;
+      border-color: #2d1b69;
+      box-shadow: 0 0 0 1px #2d1b69; /* extra ring for non-forced-colors */
+    }
+
+    /* 1.3.1 / 3.3.1 — invalid state: border + background (not color alone) */
+    input[aria-invalid="true"],
+    select[aria-invalid="true"] {
+      border-color: #c0392b;
+      border-width: 2px;
+      background: #fff8f8;
+    }
+
+    input[aria-invalid="true"]:focus-visible,
+    select[aria-invalid="true"]:focus-visible {
+      outline: 3px solid #c0392b;
+      outline-offset: 0;
+      box-shadow: 0 0 0 1px #c0392b;
+    }
+
+    /* ── Visible format hints (3.3.2 Labels or Instructions) ── */
+    .field-hint {
+      font-size: 0.78rem;
+      /* 1.4.3 — #595959 on white = 7.3:1 */
+      color: #595959;
+      line-height: 1.4;
+    }
+
+    /* ── Inline field error (3.3.1, 3.3.3) ── */
+    .field-error {
+      font-size: 0.8rem;
+      color: #c0392b; /* 5.3:1 on white — passes 1.4.3 */
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      min-height: 1.2em; /* reserve space so layout doesn't jump */
+    }
+
+    /* Error icon using text content (works in forced-colors, unlike background-image) */
+    .field-error:not(:empty)::before {
+      content: '!';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1rem;
+      height: 1rem;
+      min-width: 1rem;
+      background: #c0392b;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.65rem;
+      font-weight: 800;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    textarea {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid #767676;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fff;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    textarea:focus-visible {
+      outline: 3px solid #2d1b69;
+      outline-offset: 0;
+      border-color: #2d1b69;
+    }
+
+    .char-count {
+      font-size: 0.78rem;
+      color: #595959;
+    }
+
+    /* ── Radio group (shipping method) ── */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      /* 1.4.11 Non-text Contrast */
+      border: 1px solid #767676;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .radio-option:has(input:checked) {
+      border-color: #2d1b69;
+      border-width: 2px;
+      background: #f7f5ff;
+    }
+
+    .radio-option input[type="radio"] {
+      /* 2.5.8 Target Size — the whole label row is the target; radio itself: accent only */
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: #2d1b69;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .radio-option input[type="radio"]:focus-visible {
+      outline: 2px solid #2d1b69;
+      outline-offset: 2px;
+    }
+
+    .radio-label {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .radio-desc {
+      display: block;
+      font-size: 0.8rem;
+      /* 1.4.3 — #595959 on white = 7.3:1 */
+      color: #595959;
+      font-weight: 400;
+    }
+
+    .radio-price {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    /* ── Toggle button (Extras) ── */
+    .toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      /* 2.5.8 Target Size — padding gives ≥ 24 × 24 px */
+      padding: 0.65rem 1rem;
+      /* 1.4.11 Non-text Contrast */
+      border: 1px solid #767676;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 0.9rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      /* 1.4.3 — #595959 on white = 7.3:1 */
+      color: #595959;
+    }
+
+    .toggle-btn[aria-pressed="true"] {
+      border-color: #2d1b69;
+      border-width: 2px;
+      background: #f7f5ff;
+      color: #2d1b69;
+    }
+
+    .toggle-btn:focus-visible {
+      outline: 3px solid #2d1b69;
+      outline-offset: 2px;
+    }
+
+    .toggle-btn .toggle-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .toggle-hint {
+      margin-top: 0.6rem;
+      font-size: 0.8rem;
+      /* 1.4.3 — #595959 on white = 7.3:1 */
+      color: #595959;
+    }
+
+    /* ── Order summary ── */
+    .order-summary {
+      background: #fff;
+      border-radius: 12px;
+      /* 1.4.11 Non-text Contrast */
+      border: 1px solid #d4d4d4;
+      padding: 1.75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 1.5rem;
+    }
+
+    .order-summary h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .summary-item-name { color: #333; }
+
+    .summary-item-qty {
+      font-size: 0.78rem;
+      /* 1.4.3 — #595959 on white = 7.3:1 */
+      color: #595959;
+      margin-top: 0.1rem;
+    }
+
+    .summary-divider {
+      border: none;
+      /* 1.4.11 Non-text Contrast — #767676 on white = 4.5:1, exceeds 3:1 */
+      border-top: 1px solid #767676;
+      margin: 1rem 0;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      /* 1.4.3 — #555 on white = 7.3:1 */
+      color: #555;
+    }
+
+    .summary-row.total {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #1a1a1a;
+      margin-top: 0.5rem;
+    }
+
+    .place-order-btn {
+      display: block;
+      width: 100%;
+      margin-top: 1.5rem;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      /* 2.5.8 Target Size — vertical padding gives > 24 px height */
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .place-order-btn:hover { background: #333; }
+
+    /* 2.4.7 / 2.4.11 — outline offset puts ring on the light page background */
+    .place-order-btn:focus-visible {
+      outline: 3px solid #1a1a1a;
+      outline-offset: 3px;
+    }
+
+    /* 2.5.8 Target Size — pad back link to ≥ 24 px height */
+    .back-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      color: #1a1a1a;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-align: center;
+      width: 100%;
+      border-radius: 6px;
+    }
+
+    .back-link:hover { text-decoration: none; }
+
+    .back-link:focus-visible {
+      outline: 3px solid #1a1a1a;
+      outline-offset: 2px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      /* 1.4.3 — #595959 on #f5f4f0 = 6.4:1 */
+      color: #595959;
+      border-top: 1px solid #d4d4d4;
+      margin-top: 3rem;
+    }
+
+    /* ──────────────────────────────────────────────
+       Forced-colors (Windows High Contrast) support
+       Box-shadows and background-images are suppressed
+       in forced-colors mode; outlines are preserved.
+    ────────────────────────────────────────────── */
+    @media (forced-colors: active) {
+      /* Preserve card borders so form sections remain visible */
+      .form-section,
+      .order-summary {
+        border: 2px solid ButtonText;
+        box-shadow: none;
+      }
+
+      /* Preserve error summary border */
+      .error-summary {
+        border: 2px solid Mark;
+      }
+
+      /* Error icon: use system colors so it stays visible */
+      .field-error:not(:empty)::before {
+        forced-color-adjust: none;
+        background: Mark;
+        color: MarkText;
+      }
+
+      /* Invalid inputs: use system outline instead of color border */
+      input[aria-invalid="true"],
+      select[aria-invalid="true"] {
+        outline: 2px solid Mark;
+        border-color: ButtonText;
+      }
+
+      /* Radio checked state: border alone carries the selected signal */
+      .radio-option:has(input:checked) {
+        border: 2px solid Highlight;
+        background: transparent;
+      }
+
+      /* Toggle pressed state */
+      .toggle-btn[aria-pressed="true"] {
+        border: 2px solid Highlight;
+        background: transparent;
+        color: ButtonText;
+      }
+
+      /* Skip link */
+      .skip-link {
+        forced-color-adjust: none;
+        background: ButtonFace;
+        color: ButtonText;
+        border: 1px solid ButtonText;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 2.4.1 Bypass Blocks — skip link is the very first focusable element -->
+  <a class="skip-link" href="#checkout-form">Skip to checkout form</a>
+
+  <header>
+    <a href="home.html" class="logo">Cosmic Goods</a>
+    <nav aria-label="Site">
+      <a href="home.html">Shop</a>
+      <a href="#">About</a>
+      <a href="cart.html">Cart (1)</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Checkout</h1>
+
+    <!-- 3.3.2 Labels or Instructions — explain required marker before the form -->
+    <p class="required-note">
+      Fields marked <span class="req-marker" aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required.
+    </p>
+
+    <form id="checkout-form" method="post" action="#" novalidate>
+
+      <!-- Error summary — role="alert" announces on injection; focus moved here on submit -->
+      <div
+        id="error-summary"
+        class="error-summary"
+        role="alert"
+        aria-labelledby="error-summary-heading"
+        hidden
+      >
+        <h2 id="error-summary-heading">There are problems with your order</h2>
+        <ul id="error-summary-list"></ul>
+      </div>
+
+      <!-- ── Contact ── -->
+      <section class="form-section" aria-labelledby="contact-heading">
+        <h2 id="contact-heading">Contact Information</h2>
+        <div class="field-group full">
+          <div class="field">
+            <label for="email">
+              Email address <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+              aria-required="true"
+              aria-describedby="email-error"
+            />
+            <span class="field-error" id="email-error" aria-live="polite"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Shipping address ── -->
+      <section class="form-section" aria-labelledby="shipping-heading">
+        <h2 id="shipping-heading">Shipping Address</h2>
+        <div class="field-group">
+          <div class="field">
+            <label for="first-name">
+              First name <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="first-name"
+              name="first-name"
+              autocomplete="given-name"
+              required
+              aria-required="true"
+              aria-describedby="first-name-error"
+            />
+            <span class="field-error" id="first-name-error" aria-live="polite"></span>
+          </div>
+          <div class="field">
+            <label for="last-name">
+              Last name <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="last-name"
+              name="last-name"
+              autocomplete="family-name"
+              required
+              aria-required="true"
+              aria-describedby="last-name-error"
+            />
+            <span class="field-error" id="last-name-error" aria-live="polite"></span>
+          </div>
+        </div>
+        <div class="field-group full" style="margin-top:1rem">
+          <div class="field">
+            <label for="address">
+              Street address <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              autocomplete="street-address"
+              required
+              aria-required="true"
+              aria-describedby="address-error"
+            />
+            <span class="field-error" id="address-error" aria-live="polite"></span>
+          </div>
+        </div>
+        <div class="field-group" style="margin-top:1rem">
+          <div class="field">
+            <label for="city">
+              City <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              autocomplete="address-level2"
+              required
+              aria-required="true"
+              aria-describedby="city-error"
+            />
+            <span class="field-error" id="city-error" aria-live="polite"></span>
+          </div>
+          <div class="field">
+            <label for="postal">
+              Postal code <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="postal"
+              name="postal"
+              autocomplete="postal-code"
+              required
+              aria-required="true"
+              aria-describedby="postal-error"
+            />
+            <span class="field-error" id="postal-error" aria-live="polite"></span>
+          </div>
+        </div>
+        <div class="field-group full" style="margin-top:1rem">
+          <div class="field">
+            <label for="country">
+              Country <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <select
+              id="country"
+              name="country"
+              autocomplete="country-name"
+              required
+              aria-required="true"
+              aria-describedby="country-error"
+            >
+              <option value="">Select a country</option>
+              <option value="US">United States</option>
+              <option value="CA">Canada</option>
+              <option value="GB">United Kingdom</option>
+              <option value="DE">Germany</option>
+              <option value="AU">Australia</option>
+            </select>
+            <span class="field-error" id="country-error" aria-live="polite"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Shipping method — radio group ── -->
+      <section class="form-section" aria-labelledby="shipping-method-heading">
+        <h2 id="shipping-method-heading">Shipping Method</h2>
+        <fieldset style="border:none;padding:0">
+          <legend class="sr-only">Choose a shipping method</legend>
+          <div class="radio-group">
+
+            <label class="radio-option">
+              <input type="radio" name="shipping-method" value="standard" checked />
+              <span class="radio-label">
+                Standard
+                <span class="radio-desc">Arrives in 5–7 business days</span>
+              </span>
+              <span class="radio-price">Free</span>
+            </label>
+
+            <label class="radio-option">
+              <input type="radio" name="shipping-method" value="express" />
+              <span class="radio-label">
+                Express
+                <span class="radio-desc">Arrives in 2–3 business days</span>
+              </span>
+              <span class="radio-price">$8.00</span>
+            </label>
+
+            <label class="radio-option">
+              <input type="radio" name="shipping-method" value="overnight" />
+              <span class="radio-label">
+                Overnight
+                <span class="radio-desc">Arrives next business day</span>
+              </span>
+              <span class="radio-price">$18.00</span>
+            </label>
+
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- ── Extras — toggle button ── -->
+      <section class="form-section" aria-labelledby="extras-heading">
+        <h2 id="extras-heading">Extras</h2>
+        <button
+          type="button"
+          class="toggle-btn"
+          id="gift-wrap-btn"
+          aria-pressed="false"
+          onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"
+        >
+          <span class="toggle-icon" aria-hidden="true">🎁</span>
+          Add gift wrapping
+        </button>
+        <p class="toggle-hint" id="gift-wrap-hint">
+          We'll wrap your order in recycled kraft paper with a handwritten note (+$3.00).
+        </p>
+      </section>
+
+      <!-- ── Order notes ── -->
+      <section class="form-section" aria-labelledby="notes-heading">
+        <h2 id="notes-heading">Order Notes</h2>
+        <div class="field-group full">
+          <div class="field">
+            <label for="order-notes">Any special instructions? (optional)</label>
+            <textarea
+              id="order-notes"
+              name="order-notes"
+              rows="4"
+              placeholder="e.g. Leave at the door, gift for someone special…"
+              aria-describedby="order-notes-hint"
+            ></textarea>
+            <span class="field-hint" id="order-notes-hint">Max 300 characters.</span>
+            <span class="char-count" id="order-notes-count" aria-live="polite"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Payment ── -->
+      <section class="form-section" aria-labelledby="payment-heading">
+        <h2 id="payment-heading">Payment</h2>
+        <div class="field-group full">
+          <div class="field">
+            <label for="card-number">
+              Card number <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <!--
+              3.3.2 Labels or Instructions — persistent visible hint, not just placeholder.
+              aria-describedby chains hint then error so both are read by screen readers.
+            -->
+            <input
+              type="text"
+              id="card-number"
+              name="card-number"
+              autocomplete="cc-number"
+              placeholder="1234 5678 9012 3456"
+              inputmode="numeric"
+              required
+              aria-required="true"
+              aria-describedby="card-number-hint card-number-error"
+            />
+            <span class="field-hint" id="card-number-hint">13 to 19 digits</span>
+            <span class="field-error" id="card-number-error" aria-live="polite"></span>
+          </div>
+        </div>
+        <div class="field-group" style="margin-top:1rem">
+          <div class="field">
+            <label for="expiry">
+              Expiry date <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="expiry"
+              name="expiry"
+              autocomplete="cc-exp"
+              placeholder="MM / YY"
+              inputmode="numeric"
+              required
+              aria-required="true"
+              aria-describedby="expiry-hint expiry-error"
+            />
+            <span class="field-hint" id="expiry-hint">Format: MM / YY (e.g. 06 / 27)</span>
+            <span class="field-error" id="expiry-error" aria-live="polite"></span>
+          </div>
+          <div class="field">
+            <label for="cvv">
+              Security code <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="cvv"
+              name="cvv"
+              autocomplete="cc-csc"
+              placeholder="CVV"
+              inputmode="numeric"
+              required
+              aria-required="true"
+              aria-describedby="cvv-hint cvv-error"
+            />
+            <span class="field-hint" id="cvv-hint">3 or 4 digits on the back of your card</span>
+            <span class="field-error" id="cvv-error" aria-live="polite"></span>
+          </div>
+        </div>
+        <div class="field-group full" style="margin-top:1rem">
+          <div class="field">
+            <label for="name-on-card">
+              Name on card <span class="req-marker" aria-hidden="true">*</span>
+            </label>
+            <input
+              type="text"
+              id="name-on-card"
+              name="name-on-card"
+              autocomplete="cc-name"
+              required
+              aria-required="true"
+              aria-describedby="name-on-card-error"
+            />
+            <span class="field-error" id="name-on-card-error" aria-live="polite"></span>
+          </div>
+        </div>
+      </section>
+
+    </form>
+
+    <!-- ── Order summary sidebar ── -->
+    <aside class="order-summary" aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Order Summary</h2>
+
+      <div class="summary-item">
+        <div>
+          <div class="summary-item-name">Gravity-Defying Mug</div>
+          <div class="summary-item-qty">Qty: 1</div>
+        </div>
+        <span>$34.99</span>
+      </div>
+
+      <hr class="summary-divider" />
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span>$34.99</span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span>Free</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>$34.99</span>
+      </div>
+
+      <button type="submit" form="checkout-form" class="place-order-btn">Place Order</button>
+      <a class="back-link" href="cart.html">&larr; Return to cart</a>
+    </aside>
+  </main>
+
+  <footer>
+    &copy; 2026 Cosmic Goods. All rights reserved. No voids were harmed in the making of this shop.
+  </footer>
+
+  <script>
+    // Validation rules: id → { label, validate() → error string | undefined }
+    const FIELDS = [
+      {
+        id: 'email',
+        label: 'Email address',
+        validate(val) {
+          if (!val) return 'Enter your email address.';
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val))
+            return 'Enter a valid email address, like name@example.com.';
+        }
+      },
+      { id: 'first-name', label: 'First name',    validate: req('Enter your first name.') },
+      { id: 'last-name',  label: 'Last name',     validate: req('Enter your last name.') },
+      { id: 'address',    label: 'Street address', validate: req('Enter your street address.') },
+      { id: 'city',       label: 'City',           validate: req('Enter your city.') },
+      { id: 'postal',     label: 'Postal code',    validate: req('Enter your postal code.') },
+      { id: 'country',    label: 'Country',        validate: req('Select a country.') },
+      {
+        id: 'card-number',
+        label: 'Card number',
+        validate(val) {
+          const digits = val.replace(/\s/g, '');
+          if (!digits) return 'Enter your card number.';
+          if (!/^\d{13,19}$/.test(digits)) return 'Enter a valid card number (13–19 digits, numbers only).';
+        }
+      },
+      {
+        id: 'expiry',
+        label: 'Expiry date',
+        validate(val) {
+          if (!val) return 'Enter your card expiry date.';
+          if (!/^(0[1-9]|1[0-2])\s*\/\s*\d{2}$/.test(val.trim()))
+            return 'Enter a valid expiry date in MM / YY format, for example 06 / 27.';
+          const [month, year] = val.split('/').map(s => parseInt(s.trim(), 10));
+          if (new Date(2000 + year, month - 1, 1) < new Date())
+            return 'This card has expired. Check the date and try again.';
+        }
+      },
+      {
+        id: 'cvv',
+        label: 'Security code',
+        validate(val) {
+          if (!val) return 'Enter the security code from your card.';
+          if (!/^\d{3,4}$/.test(val)) return 'Security code must be 3 or 4 digits.';
+        }
+      },
+      { id: 'name-on-card', label: 'Name on card', validate: req('Enter the name as it appears on your card.') },
+    ];
+
+    // Helper: required-only validator
+    function req(msg) { return val => val ? undefined : msg; }
+
+    // Validate a single field; update its inline error and aria state.
+    // Returns the error message if invalid, otherwise undefined.
+    function validateField({ id, validate }) {
+      const input    = document.getElementById(id);
+      const errorEl  = document.getElementById(`${id}-error`);
+      const message  = validate(input.value.trim());
+
+      if (message) {
+        errorEl.textContent = message;
+        input.setAttribute('aria-invalid', 'true');
+      } else {
+        errorEl.textContent = '';
+        input.removeAttribute('aria-invalid');
+      }
+
+      return message;
+    }
+
+    // Update the error summary at the top of the form.
+    // 3.3.1 — include count so screen readers know scope ("3 problems").
+    function updateErrorSummary(errors) {
+      const summary   = document.getElementById('error-summary');
+      const heading   = document.getElementById('error-summary-heading');
+      const list      = document.getElementById('error-summary-list');
+
+      if (errors.length === 0) {
+        summary.hidden = true;
+        list.innerHTML = '';
+        return;
+      }
+
+      const n = errors.length;
+      heading.textContent = n === 1
+        ? 'There is 1 problem with your order'
+        : `There are ${n} problems with your order`;
+
+      list.innerHTML = errors
+        .map(({ id, label, message }) =>
+          `<li><a href="#${id}">${label}: ${message}</a></li>`)
+        .join('');
+
+      summary.hidden = false;
+    }
+
+    // Form submit — validate all fields; move focus to summary on failure.
+    document.getElementById('checkout-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const errors = [];
+      for (const field of FIELDS) {
+        const message = validateField(field);
+        if (message) errors.push({ id: field.id, label: field.label, message });
+      }
+
+      updateErrorSummary(errors);
+
+      if (errors.length > 0) {
+        // 2.4.3 Focus Order — move focus to summary so AT announces it immediately.
+        const summary = document.getElementById('error-summary');
+        summary.setAttribute('tabindex', '-1');
+        summary.focus();
+      } else {
+        alert('Order placed! (Demo only)');
+      }
+    });
+
+    // Allow Tab key to indent inside the order notes textarea.
+    document.getElementById('order-notes').addEventListener('keydown', function (e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end   = this.selectionEnd;
+        this.value  = this.value.substring(0, start) + '    ' + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+      }
+    });
+
+    // Update character count for order notes.
+    document.getElementById('order-notes').addEventListener('input', function () {
+      const remaining = 300 - this.value.length;
+      document.getElementById('order-notes-count').textContent =
+        remaining >= 0 ? `${remaining} characters remaining` : `${Math.abs(remaining)} characters over limit`;
+    });
+
+    // Validate on blur; re-validate on input once a field is already marked invalid.
+    for (const field of FIELDS) {
+      const input = document.getElementById(field.id);
+      input.addEventListener('blur',  () => validateField(field));
+      input.addEventListener('input', () => {
+        if (input.getAttribute('aria-invalid') === 'true') validateField(field);
+      });
+    }
+  </script>
+</body>
+</html>
