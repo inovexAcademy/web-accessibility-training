@@ -10,7 +10,7 @@ test.describe('font size scaling', () => {
     await page.goto('/cart.html');
     await injectLargeFontSize(page);
 
-    const row = page.locator('.cart-table tbody tr');
+    const row = page.getByRole('row').filter({ has: page.getByRole('cell') });
     await expect(row).toBeVisible();
   });
 
@@ -29,7 +29,7 @@ test.describe('font size scaling', () => {
     await page.goto('/cart.html');
     await injectLargeFontSize(page);
 
-    const cells = page.locator('.cart-table td');
+    const cells = page.getByRole('cell');
     for (const cell of await cells.all()) {
       const isClipped = await cell.evaluate(
         (el) => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflow === 'hidden'
@@ -65,7 +65,7 @@ test.describe('font size scaling', () => {
     await page.goto('/cart.html');
     await injectLargeFontSize(page);
 
-    const inputs = page.locator('.qty-input');
+    const inputs = page.getByRole('spinbutton');
     for (const input of await inputs.all()) {
       await expect(input).toBeVisible();
       const box = await input.boundingBox();
