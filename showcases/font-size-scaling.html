@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Font Scaling: px vs rem vs em</title>
+    <style>
+        /* Base Styles */
+        html {
+            /* The default browser font size is usually 16px */
+            /* In a real product you would set font-size: 100%; here to let the browser manage the font size */
+            font-size: 16px; 
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            transition: font-size 0.3s ease;
+        }
+
+        body {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .controls {
+            background: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .controls button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px; /* Fixed so the controls don't shrink/grow */
+        }
+
+        .controls button:hover {
+            background: #2563eb;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        /* ---------------------------------------------------
+           1. Fixed Pixels (px) 
+           These elements will never change size when the root alters.
+        --------------------------------------------------- */
+        .px-example h3 { font-size: 24px; margin-bottom: 12px; }
+        .px-example p { font-size: 16px; line-height: 24px; margin-bottom: 16px; }
+        .px-example .badge { 
+            font-size: 12px; 
+            padding: 4px 8px; 
+            background: #cbd5e1; 
+            border-radius: 12px; 
+        }
+        .px-example button {
+            font-size: 16px;
+            padding: 8px 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        /* ---------------------------------------------------
+           2. Root EM (rem)
+           These scale exactly in proportion to the <html> font-size.
+           Calculations based on a 16px base:
+           24px = 1.5rem | 16px = 1rem | 12px = 0.75rem | 8px = 0.5rem
+        --------------------------------------------------- */
+        .rem-example h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+        .rem-example p { font-size: 1rem; line-height: 1.5rem; margin-bottom: 1rem; }
+        .rem-example .badge { 
+            font-size: 0.75rem; 
+            padding: 0.25rem 0.5rem; 
+            background: #cbd5e1; 
+            border-radius: 0.75rem; 
+        }
+        .rem-example button {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+        }
+
+        /* ---------------------------------------------------
+           3. Parent Relative (em)
+           These scale relative to their parent container's font size.
+        --------------------------------------------------- */
+        /* Let's set a base font size for the em-card container */
+        .em-example { font-size: 16px; } 
+        
+        /* 1.5 * 16px = 24px */
+        .em-example h3 { font-size: 1.5em; margin-bottom: 0.5em; } 
+        /* 1 * 16px = 16px */
+        .em-example p { font-size: 1em; line-height: 1.5em; margin-bottom: 1em; } 
+        /* 0.75 * 16px = 12px */
+        .em-example .badge { 
+            font-size: 0.75em; 
+            padding: 0.33em 0.66em; 
+            background: #cbd5e1; 
+            border-radius: 1em; 
+        }
+        /* 1 * 16px = 16px */
+        .em-example button {
+            font-size: 1em;
+            padding: 0.5em 1em;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 0.25em;
+        }
+
+        /* Showcasing 'em' compounding effect */
+        .em-nested-box {
+            margin-top: 1.5em;
+            padding: 1em;
+            border: 2px dashed #94a3b8;
+            font-size: 1.2em; /* This makes everything inside 20% larger than its parent */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Font Scaling Demonstration</h1>
+    
+    <div class="controls">
+        <strong>Change Root (&lt;html&gt;) Font Size:</strong>
+        <button onclick="changeRootSize('12px')">Small (12px)</button>
+        <button onclick="changeRootSize('16px')">Default (16px)</button>
+        <button onclick="changeRootSize('24px')">Large (24px)</button>
+    </div>
+
+    <div class="grid">
+        <div class="card px-example">
+            <h2>Fixed Pixels (px)</h2>
+            <p><strong>Behavior:</strong> Ignores the root font size completely. It is absolute.</p>
+            <h3>Heading Example</h3>
+            <p>This paragraph and the elements below will remain exactly the same size regardless of the buttons you click at the top.</p>
+            <div>
+                <span class="badge">New Item</span>
+                <span class="badge">Update</span>
+            </div>
+            <br>
+            <button>Click Me (Fixed)</button>
+        </div>
+
+        <div class="card rem-example">
+            <h2>Root EM (rem)</h2>
+            <p><strong>Behavior:</strong> Scales uniformly based on the document's root font size.</p>
+            <h3>Heading Example</h3>
+            <p>If you click "Large", this paragraph scales up perfectly because `1rem` equals the root size. It ensures consistent scaling across the whole app.</p>
+            <div>
+                <span class="badge">New Item</span>
+                <span class="badge">Update</span>
+            </div>
+            <br>
+            <button>Click Me (REM)</button>
+        </div>
+
+        <div class="card em-example">
+            <h2>Relative EM (em)</h2>
+            <p><strong>Behavior:</strong> Scales relative to its immediate parent. Can compound dangerously if nested.</p>
+            <h3>Heading Example</h3>
+            <p>This paragraph uses `1em`. Since its parent `.card` is currently set to `16px`, it looks normal.</p>
+            <div>
+                <span class="badge">New Item</span>
+                <span class="badge">Update</span>
+            </div>
+            <br>
+            <button>Click Me (EM)</button>
+
+            <div class="em-nested-box">
+                This box has a font-size of <code>1.2em</code>. 
+                <div class="em-nested-box">
+                    Because `em` compounds, this nested box is 1.2x bigger than the previous one!
+                    <br><br>
+                    <button>Compounded Button</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function changeRootSize(size) {
+            // Changes the font-size on the <html> element
+            document.documentElement.style.fontSize = size;
+        }
+    </script>
+</body>
+</html>
